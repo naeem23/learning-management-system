@@ -33,7 +33,9 @@ export const TitleForm = ({ initialData, courseId }) => {
 
     const form = useForm({
         resolver: zodResolver(formSchema),
-        defaultValues: initialData,
+        defaultValues: {
+            title: initialData?.title || '',
+        },
     });
 
     const { isSubmitting, isValid } = form.formState;

@@ -12,21 +12,22 @@ import { useRouter } from 'next/navigation';
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormMessage,
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '../ui/textarea';
 import { cn } from '@/lib/utils';
+import { Editor } from '../editor';
+import { Preview } from '../preview';
+import { Checkbox } from '../ui/checkbox';
 
 const formSchema = z.object({
-    description: z.string().min(1, {
-        message: 'Description is required',
-    }),
+    isFree: z.boolean().default(false),
 });
 
-export const DescriptionForm = ({ initialData, courseId }) => {
+export const ChapterAccessForm = ({ initialData, courseId, chapterId }) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -35,7 +36,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            description: initialData?.description || '',
+            isFree: !!initialData.isFree,
         },
     });
 
@@ -43,8 +44,11 @@ export const DescriptionForm = ({ initialData, courseId }) => {
 
     const onSubmit = async (values) => {
         try {
-            await axios.patch(`/api/courses/${courseId}`, values);
-            toast.success('Course updated!');
+            await axios.patch(
+                `/api/courses/${courseId}/chapters/${chapterId}`,
+                values
+            );
+            toast.success('Chapter updated!');
             toggleEdit();
             router.refresh();
         } catch (error) {
@@ -56,7 +60,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                <p className="font-semibold">Course description</p>
+                <p className="font-semibold">Chapter access</p>
                 <Button onClick={toggleEdit} variant="ghost">
                     {isEditing ? (
                         <>Cancel</>
@@ -77,17 +81,21 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                     >
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="isFree"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border p-4">
                                     <FormControl>
-                                        <Textarea
-                                            disabled={isSubmitting}
-                                            placeholder="e.g. 'This course is about...'"
-                                            {...field}
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
                                         />
                                     </FormControl>
-                                    <FormMessage />
+                                    <div className="space-y-1 leading-none">
+                                        <FormDescription>
+                                            Check this box if you want to make
+                                            this chapter free for preview
+                                        </FormDescription>
+                                    </div>
                                 </FormItem>
                             )}
                         />
@@ -103,10 +111,14 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                 <p
                     className={cn(
                         'text-sm mt-2',
-                        !initialData.description && 'text-slate-500 italic'
+                        !initialData.isFree && 'text-slate-500 italic'
                     )}
                 >
-                    {initialData.description || 'No description'}
+                    {initialData.isFree ? (
+                        <>This chapter is free for preview.</>
+                    ) : (
+                        <>This chapter is not free.</>
+                    )}
                 </p>
             )}
         </div>

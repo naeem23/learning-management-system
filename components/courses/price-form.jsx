@@ -19,14 +19,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '../ui/textarea';
 import { cn } from '@/lib/utils';
+import { Input } from '../ui/input';
+import { formatPrice } from '@/lib/format';
 
 const formSchema = z.object({
-    description: z.string().min(1, {
-        message: 'Description is required',
-    }),
+    price: z.coerce.number(),
 });
 
-export const DescriptionForm = ({ initialData, courseId }) => {
+export const PriceForm = ({ initialData, courseId }) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -35,7 +35,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            description: initialData?.description || '',
+            price: initialData?.price || undefined,
         },
     });
 
@@ -56,7 +56,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                <p className="font-semibold">Course description</p>
+                <p className="font-semibold">Course price</p>
                 <Button onClick={toggleEdit} variant="ghost">
                     {isEditing ? (
                         <>Cancel</>
@@ -77,13 +77,15 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                     >
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="price"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Textarea
+                                        <Input
+                                            type="number"
+                                            step="0.01"
                                             disabled={isSubmitting}
-                                            placeholder="e.g. 'This course is about...'"
+                                            placeholder="e.g. 100.00"
                                             {...field}
                                         />
                                     </FormControl>
@@ -103,10 +105,12 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                 <p
                     className={cn(
                         'text-sm mt-2',
-                        !initialData.description && 'text-slate-500 italic'
+                        !initialData.price && 'text-slate-500 italic'
                     )}
                 >
-                    {initialData.description || 'No description'}
+                    {initialData.price
+                        ? formatPrice(initialData.price)
+                        : 'No price'}
                 </p>
             )}
         </div>

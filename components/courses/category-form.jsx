@@ -2,13 +2,15 @@
 
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
+import { Button } from '@/components/ui/button';
 import {
     Form,
     FormControl,
@@ -16,17 +18,15 @@ import {
     FormItem,
     FormMessage,
 } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '../ui/textarea';
-import { cn } from '@/lib/utils';
+import { Combobox } from '@/components/ui/combobox';
 
 const formSchema = z.object({
-    description: z.string().min(1, {
-        message: 'Description is required',
+    categoryId: z.string().min(1, {
+        message: 'Name is required.',
     }),
 });
 
-export const DescriptionForm = ({ initialData, courseId }) => {
+export const CategoryForm = ({ initialData, courseId, options }) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -35,11 +35,9 @@ export const DescriptionForm = ({ initialData, courseId }) => {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            description: initialData?.description || '',
+            categoryId: initialData?.categoryId || '',
         },
     });
-
-    const { isSubmitting, isValid } = form.formState;
 
     const onSubmit = async (values) => {
         try {
@@ -49,14 +47,19 @@ export const DescriptionForm = ({ initialData, courseId }) => {
             router.refresh();
         } catch (error) {
             console.log(error);
-            toast.error('Something went error!');
+            toast.error('Something went wrong!');
         }
     };
 
+    const { isSubmitting, isValid } = form.formState;
+    const selectedOption = options.find(
+        (option) => option.id === initialData.categoryId
+    );
+
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
-            <div className="font-medium flex items-center justify-between">
-                <p className="font-semibold">Course description</p>
+            <div className="font-medium flex justify-between items-center">
+                <p className="font-semibold">Category</p>
                 <Button onClick={toggleEdit} variant="ghost">
                     {isEditing ? (
                         <>Cancel</>
@@ -77,13 +80,12 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                     >
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="categoryId"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Textarea
-                                            disabled={isSubmitting}
-                                            placeholder="e.g. 'This course is about...'"
+                                        <Combobox
+                                            options={options}
                                             {...field}
                                         />
                                     </FormControl>
@@ -93,7 +95,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                         />
                         <Button
                             type="submit"
-                            disabled={!isValid || isSubmitting}
+                            disabled={isSubmitting || !isValid}
                         >
                             Save
                         </Button>
@@ -103,10 +105,10 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                 <p
                     className={cn(
                         'text-sm mt-2',
-                        !initialData.description && 'text-slate-500 italic'
+                        !initialData.categoryId && 'text-slate-500 italic'
                     )}
                 >
-                    {initialData.description || 'No description'}
+                    {selectedOption?.name || 'No category'}
                 </p>
             )}
         </div>

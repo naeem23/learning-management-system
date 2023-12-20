@@ -17,16 +17,15 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '../ui/textarea';
-import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
 const formSchema = z.object({
-    description: z.string().min(1, {
-        message: 'Description is required',
+    title: z.string().min(1, {
+        message: 'Title is required',
     }),
 });
 
-export const DescriptionForm = ({ initialData, courseId }) => {
+export const ChapterTitleForm = ({ initialData, courseId, chapterId }) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -34,17 +33,19 @@ export const DescriptionForm = ({ initialData, courseId }) => {
 
     const form = useForm({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            description: initialData?.description || '',
-        },
+        defaultValues: initialData,
     });
 
     const { isSubmitting, isValid } = form.formState;
 
     const onSubmit = async (values) => {
         try {
-            await axios.patch(`/api/courses/${courseId}`, values);
-            toast.success('Course updated!');
+            console.log(values);
+            await axios.patch(
+                `/api/courses/${courseId}/chapters/${chapterId}`,
+                values
+            );
+            toast.success('Chapter updated!');
             toggleEdit();
             router.refresh();
         } catch (error) {
@@ -56,7 +57,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                <p className="font-semibold">Course description</p>
+                <p className="font-semibold">Chapter title</p>
                 <Button onClick={toggleEdit} variant="ghost">
                     {isEditing ? (
                         <>Cancel</>
@@ -77,13 +78,13 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                     >
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="title"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Textarea
+                                        <Input
                                             disabled={isSubmitting}
-                                            placeholder="e.g. 'This course is about...'"
+                                            placeholder="e.g. 'Introduction to the course'"
                                             {...field}
                                         />
                                     </FormControl>
@@ -100,14 +101,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                     </form>
                 </Form>
             ) : (
-                <p
-                    className={cn(
-                        'text-sm mt-2',
-                        !initialData.description && 'text-slate-500 italic'
-                    )}
-                >
-                    {initialData.description || 'No description'}
-                </p>
+                <p className="text-sm mt-2">{initialData.title}</p>
             )}
         </div>
     );

@@ -17,8 +17,9 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '../ui/textarea';
 import { cn } from '@/lib/utils';
+import { Editor } from '../editor';
+import { Preview } from '../preview';
 
 const formSchema = z.object({
     description: z.string().min(1, {
@@ -26,7 +27,11 @@ const formSchema = z.object({
     }),
 });
 
-export const DescriptionForm = ({ initialData, courseId }) => {
+export const ChapterDescriptionForm = ({
+    initialData,
+    courseId,
+    chapterId,
+}) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -43,8 +48,11 @@ export const DescriptionForm = ({ initialData, courseId }) => {
 
     const onSubmit = async (values) => {
         try {
-            await axios.patch(`/api/courses/${courseId}`, values);
-            toast.success('Course updated!');
+            await axios.patch(
+                `/api/courses/${courseId}/chapters/${chapterId}`,
+                values
+            );
+            toast.success('Chapter updated!');
             toggleEdit();
             router.refresh();
         } catch (error) {
@@ -56,7 +64,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                <p className="font-semibold">Course description</p>
+                <p className="font-semibold">Chapter description</p>
                 <Button onClick={toggleEdit} variant="ghost">
                     {isEditing ? (
                         <>Cancel</>
@@ -81,11 +89,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Textarea
-                                            disabled={isSubmitting}
-                                            placeholder="e.g. 'This course is about...'"
-                                            {...field}
-                                        />
+                                        <Editor {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -100,14 +104,17 @@ export const DescriptionForm = ({ initialData, courseId }) => {
                     </form>
                 </Form>
             ) : (
-                <p
+                <div
                     className={cn(
                         'text-sm mt-2',
                         !initialData.description && 'text-slate-500 italic'
                     )}
                 >
-                    {initialData.description || 'No description'}
-                </p>
+                    {!initialData.description && 'No description'}
+                    {initialData.description && (
+                        <Preview value={initialData.description} />
+                    )}
+                </div>
             )}
         </div>
     );

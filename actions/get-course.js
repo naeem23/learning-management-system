@@ -10,6 +10,18 @@ export const getCourse = async (id) => {
             id,
             userId,
         },
+        include: {
+            chapters: {
+                orderBy: {
+                    position: 'asc',
+                },
+            },
+            attachments: {
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            },
+        },
     });
 
     return course;
