@@ -1,14 +1,12 @@
 'use client';
 
 import * as z from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { ImageIcon, ImagePlus, Video } from 'lucide-react';
-import Image from 'next/image';
+import { Video } from 'lucide-react';
+import MuxPlayer from '@mux/mux-player-react';
 
 import { Button } from '@/components/ui/button';
 import { FileUpload } from '@/components/file-upload';
@@ -67,7 +65,11 @@ export const ChapterVideoForm = ({ initialData, courseId, chapterId }) => {
                         <Video className="h-10 w-10 text-slate-500" />
                     </div>
                 ) : (
-                    <div className="relative aspect-video mt-2">uploaded</div>
+                    <div className="relative aspect-video mt-2">
+                        <MuxPlayer
+                            playbackId={initialData?.muxData?.playbackId || ''}
+                        />
+                    </div>
                 ))}
 
             {isEditing && (
