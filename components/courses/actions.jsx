@@ -7,9 +7,11 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { ConfirmModal } from '../modals/confirm-modal';
 import { Button } from '../ui/button';
+import {useConfettiStore} from '@/hooks/use-confetti-store';
 
 export const Actions = ({ disabled, courseId, isPublished }) => {
     const router = useRouter();
+    const confetti = useConfettiStore()
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -23,6 +25,7 @@ export const Actions = ({ disabled, courseId, isPublished }) => {
             } else {
                 await axios.patch(`/api/courses/${courseId}/publish`);
                 toast.success('Course published');
+                confetti.onOpen()
             }
 
             router.refresh();
