@@ -1,7 +1,11 @@
 "use client"
 
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react"
 import { Button } from "../ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
+import Link from "next/link"
+import { Badge } from "../ui/badge"
+import { cn } from "@/lib/utils"
 
 export const columns = [
   {
@@ -31,6 +35,17 @@ export const columns = [
         </Button>
       )
     },
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue('price') || "0")
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      }).format(price)
+
+      return (
+        <div>{formatted}</div>
+      )
+    }
   },
   {
     accessorKey: "isPublished",
@@ -45,5 +60,38 @@ export const columns = [
         </Button>
       )
     },
+    cell: ({row}) => {
+      const isPublished = row.getValue("isPublished") || false;
+
+      return (
+        <Badge className={cn("bg-slate-500", isPublished && "bg-sky-700")}>
+          {isPublished ? "Published" : "Draft"}
+        </Badge>
+      )
+    }
   },
+  {
+    id: "actions",
+    cell: ({row}) => {
+      const { id } = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-4 w-8 p-0">
+              <span className="sr-only">Open Menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <Link href={`/teacher/courses/${id}`}>
+              <DropdownMenuItem>
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit
+              </DropdownMenuItem>
+            </Link>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    }
+  }
 ]
