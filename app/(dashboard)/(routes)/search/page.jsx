@@ -1,4 +1,5 @@
 import Categories from '@/components/categories/categories'
+import { SearchInput } from '@/components/search-input'
 import prismadb from '@/lib/prismadb'
 
 const SearchPage = async () => {
@@ -8,11 +9,16 @@ const SearchPage = async () => {
         }
     })
   return (
-    <div className='p-6'>
-        <Categories
-            items={categories}
-        />
-    </div>
+    <>
+        <div className='px-6 pt-6 block md:hidden md:mb-0'>
+            <SearchInput />
+        </div>
+        <div className='p-6'>
+            <Categories
+                items={categories}
+            />
+        </div>
+    </>
   )
 }
 
