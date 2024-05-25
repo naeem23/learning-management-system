@@ -1,0 +1,55 @@
+import { getProgress } from '@/actions/get-progress';
+import { CourseSidebar } from '@/components/courses/course-sidebar';
+import prismadb from '@/lib/prismadb';
+import { auth } from '@clerk/nextjs'
+import { redirect } from 'next/navigation';
+import React from 'react'
+
+const Courselayout = async ({children, params}) => {
+    const {userId} = auth()
+
+    if (!userId) return redirect("/");
+
+    const course = prismadb.course.findUnique({
+        where: {
+            id: params.courseId,
+        },
+        include: {
+            chapters: {
+                where: {
+                    isPublished: true,
+                },
+                include: {
+                    userProgress: {
+                        where: {
+                            userId
+                        }
+                    }
+                },
+                orderBy: {
+                    position: 'asc'
+                }
+            }
+        }
+    });
+
+    if (!course) return redirect("/")
+
+    const progressCount = await getProgress(userId, course.id);
+
+  return (
+    <div className='h-full'>
+        <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50'>
+            <CourseSidebar
+                course={course}
+                progressCount={progressCount}
+            />
+        </div>
+        <main className='md:pl-80 h-full'>
+        {children}
+        </main>
+    </div>
+  )
+}
+
+export default Courselayout
