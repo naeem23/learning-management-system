@@ -33,7 +33,7 @@ export const CourseSidebar = async ({course, progressCount}) => {
                         label={chapter.title}
                         isCompleted={!!chapter.userProgress?.[0]?.isCompleted}
                         courseId={course.id}
-                        isLocked={!course.isFree && !purchase}
+                        isLocked={!chapter.isFree && !purchase}
                     />
                 ))}
             </div>
