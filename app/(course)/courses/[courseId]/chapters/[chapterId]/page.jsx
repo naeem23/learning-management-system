@@ -1,13 +1,17 @@
 import { getChapter } from "@/actions/get-chapter"
 import { Banner } from "@/components/banner"
+import { CourseEnrollButton } from "@/components/chapters/course-enroll-button"
 import { VideoPlayer } from "@/components/chapters/video-player"
+import { Preview } from "@/components/preview"
+import { Separator } from "@/components/ui/separator"
 import { auth } from "@clerk/nextjs"
+import { File } from "lucide-react"
 import { redirect } from "next/navigation"
 
 const ChapterIdPage = async ({params}) => {
-  const {userId} = auth()
+  const {userId} = auth();
 
-  if (!userId) return redirect("/")
+  if (!userId) return redirect("/");
 
   const {chapter, course, muxData, attachments, nextChapter, userProgress, purchase} = await getChapter({userId, courseId: params.courseId, chapterId: params.chapterId});
 
@@ -36,6 +40,41 @@ const ChapterIdPage = async ({params}) => {
             isLocked={isLocked}
             completeOnEnd={completeOnEnd}
           />
+        </div>
+
+        <div>
+          <div className="p-4 flex flex-col md:flex-row items-center justify-between">
+            <h2 className="text-2xl font-semibold mb-2">{chapter.title}</h2>
+            {purchase ? (
+              <div>
+              // TODO: add course progress button 
+              </div>
+            ) : (
+              <CourseEnrollButton
+                courseId={params.courseId}
+                price={course.price}
+              />
+            )}
+          </div>
+          <Separator />
+          <div>
+            <Preview
+              value={chapter.description}
+            />
+          </div>
+          {!!attachments.length && (
+            <>
+              <Separator />
+              <div className="p-4">
+                {attachments.map((attachment) => (
+                  <a href={attachment.url} key={attachment.id} target="_blank" className="flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline">
+                    <File />
+                    <p className="line-clamp-1">{attachment.name}</p>
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

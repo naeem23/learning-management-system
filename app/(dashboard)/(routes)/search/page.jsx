@@ -1,11 +1,12 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 
-import { getCourses } from '@/actions/get-course'
 import Categories from '@/components/categories/categories'
 import { SearchInput } from '@/components/search-input'
 import prismadb from '@/lib/prismadb'
 import { CoursesList } from '@/components/courses/courses-list'
+import { getCourses } from '@/actions';
+
 
 const SearchPage = async ({ searchParams }) => {
     const {userId} = auth()

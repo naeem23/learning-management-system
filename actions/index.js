@@ -1,3 +1,3 @@
-import { getCourse } from './get-course';
+import { getCourse, getCourses } from './get-course';
 
-export { getCourse };
+export { getCourse, getCourses };

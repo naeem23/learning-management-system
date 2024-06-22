@@ -35,7 +35,7 @@ export const getChapter = async ({userId, courseId, chapterId}) => {
         let nextChapter = null;
 
         if (purchase) {
-            attachments = await prismadb.attachments.findMany({
+            attachments = await prismadb.attachment.findMany({
                 where: {
                     courseId,
                 }
