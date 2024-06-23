@@ -2,6 +2,7 @@ import prismadb from '@/lib/prismadb'
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import React from 'react'
+import { CourseProgress } from '../course-progress'
 import { CourseSidebarItem } from './course-sidebar-item'
 
 export const CourseSidebar = async ({course, progressCount}) => {
@@ -22,7 +23,14 @@ export const CourseSidebar = async ({course, progressCount}) => {
         <div className='h-full border-r flex flex-col overflow-y-auto shadow-sm'>
             <div className='p-8 flex flex-col border-b'>
                 <h1 className='font-semibold'>{course.title}</h1>
-                {/* check purchase and add progress  */}
+                {purchase && (
+                    <div className='mt-10'>
+                        <CourseProgress
+                            variant="success"
+                            value={progressCount}
+                        /> 
+                    </div>
+                )}
             </div>
 
             <div className='flex flex-col w-full'>
